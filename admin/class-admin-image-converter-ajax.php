@@ -119,7 +119,7 @@ class Admin_Image_Converter_Ajax {
 		if ( ! $image ) {
 			return new WP_Error( 'conversion_failed', 'Failed to create image resource' );
 		}
-
+        
 		// Create WebP filename
 		$upload_dir = wp_upload_dir();
 		$filename = pathinfo( $file['name'], PATHINFO_FILENAME ) . '.webp';

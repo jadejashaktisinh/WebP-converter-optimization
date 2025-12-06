@@ -61,7 +61,7 @@ const AdminMenu = () => {
                 {activeTab === 'active-fallback' && (
                     <div className="tab-pane">
                         <h2>Active Fallback</h2>
-                        <p>Configure fallback options for unsupported browsers.</p>
+                        <p>Coming soon</p>
                     </div>
                 )}
                 
