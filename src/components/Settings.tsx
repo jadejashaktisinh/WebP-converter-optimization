@@ -13,6 +13,8 @@ const Settings: React.FC<SettingsProps> = ({ ajaxUrl, nonce }) => {
         auto_convert: false,
         keep_original: true,
         batch_size: 10,
+        cdn_url: '',
+        cdn_enabled: false,
         supported_formats: {
             jpeg: true,
             png: true,
@@ -140,6 +142,38 @@ const Settings: React.FC<SettingsProps> = ({ ajaxUrl, nonce }) => {
                                     />
                                     Keep original images after conversion
                                 </label>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">Enable CDN</th>
+                            <td>
+                                <label>
+                                    <input
+                                        type="checkbox"
+                                        checked={settings.cdn_enabled}
+                                        onChange={(e) => setSettings({ ...settings, cdn_enabled: e.target.checked })}
+                                    />
+                                    Use CDN for serving images
+                                </label>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <th scope="row">
+                                <label htmlFor="cdn_url">CDN URL</label>
+                            </th>
+                            <td>
+                                <input
+                                    type="url"
+                                    id="cdn_url"
+                                    className="regular-text"
+                                    value={settings.cdn_url}
+                                    onChange={(e) => setSettings({ ...settings, cdn_url: e.target.value })}
+                                    placeholder="https://cdn.example.com"
+                                    disabled={!settings.cdn_enabled}
+                                />
+                                <p className="description">CDN base URL (without trailing slash)</p>
                             </td>
                         </tr>
 

@@ -95,7 +95,13 @@ class Admin_Image_Converter_Ajax {
 		$quality = ! empty( $settings['default_quality'] ) ? $settings['default_quality'] : 80;
 		$keep_original = ! empty( $settings['keep_original'] );
 
-		$this->convert_to_webp( $file_path, $quality, $keep_original ? 0 : $attachment_id );
+		// Convert and update the attachment to WebP
+		$webp_id = $this->convert_to_webp( $file_path, $quality, $attachment_id, ! $keep_original );
+		
+		// If conversion succeeded and we're not keeping original, delete it
+		if ( $webp_id && ! $keep_original ) {
+			wp_delete_attachment( $attachment_id, true );
+		}
 	}
 
 	private function convert_and_save( $file, $quality ) {
@@ -158,7 +164,7 @@ class Admin_Image_Converter_Ajax {
 		);
 	}
 
-	private function convert_to_webp( $file_path, $quality, $delete_original_id = 0 ) {
+	private function convert_to_webp( $file_path, $quality, $original_id = 0, $replace_original = false ) {
 		$image_type = exif_imagetype( $file_path );
 
 		switch ( $image_type ) {
@@ -184,30 +190,29 @@ class Admin_Image_Converter_Ajax {
 		$success = imagewebp( $image, $webp_path, $quality );
 		imagedestroy( $image );
 
-		if ( $success ) {
-			// Add WebP to media library
-			$attachment = array(
-				'post_mime_type' => 'image/webp',
-				'post_title'     => basename( $webp_path, '.webp' ),
-				'post_content'   => '',
-				'post_status'    => 'inherit',
-			);
-
-			$attach_id = wp_insert_attachment( $attachment, $webp_path );
-			
-			if ( ! is_wp_error( $attach_id ) ) {
-				require_once( ABSPATH . 'wp-admin/includes/image.php' );
-				$attach_data = wp_generate_attachment_metadata( $attach_id, $webp_path );
-				wp_update_attachment_metadata( $attach_id, $attach_data );
-			}
-
-			// Delete original if requested
-			if ( $delete_original_id > 0 ) {
-				wp_delete_attachment( $delete_original_id, true );
-			}
+		if ( ! $success ) {
+			return false;
 		}
 
-		return $success;
+		// Add WebP to media library
+		$attachment = array(
+			'post_mime_type' => 'image/webp',
+			'post_title'     => basename( $webp_path, '.webp' ),
+			'post_content'   => '',
+			'post_status'    => 'inherit',
+		);
+
+		$attach_id = wp_insert_attachment( $attachment, $webp_path );
+		
+		if ( is_wp_error( $attach_id ) ) {
+			return false;
+		}
+
+		require_once( ABSPATH . 'wp-admin/includes/image.php' );
+		$attach_data = wp_generate_attachment_metadata( $attach_id, $webp_path );
+		wp_update_attachment_metadata( $attach_id, $attach_data );
+
+		return $attach_id;
 	}
 
 }
