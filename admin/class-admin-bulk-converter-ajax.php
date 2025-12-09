@@ -57,14 +57,10 @@ class Admin_Bulk_Converter_Ajax {
 				continue;
 			}
 
-			$result = $this->convert_to_webp( $file_path, $quality );
+			$result = $this->convert_to_webp( $file_path, $quality, $attachment->ID, $delete_original );
 
 			if ( $result ) {
 				$stats['converted']++;
-				
-				if ( $delete_original ) {
-					wp_delete_attachment( $attachment->ID, true );
-				}
 			} else {
 				$stats['failed']++;
 			}
@@ -82,7 +78,7 @@ class Admin_Bulk_Converter_Ajax {
 		) );
 	}
 
-	private function convert_to_webp( $file_path, $quality ) {
+	private function convert_to_webp( $file_path, $quality, $attachment_id = null, $delete_original = false ) {
 		$image_type = exif_imagetype( $file_path );
 
 		switch ( $image_type ) {
@@ -109,20 +105,50 @@ class Admin_Bulk_Converter_Ajax {
 		imagedestroy( $image );
 
 		if ( $success ) {
-			// Add WebP to media library
-			$attachment = array(
-				'post_mime_type' => 'image/webp',
-				'post_title'     => basename( $webp_path, '.webp' ),
-				'post_content'   => '',
-				'post_status'    => 'inherit',
-			);
-
-			$attach_id = wp_insert_attachment( $attachment, $webp_path );
-			
-			if ( ! is_wp_error( $attach_id ) ) {
+			if ( $attachment_id && $delete_original ) {
+				// Get old and new URLs
+				$old_url = wp_get_attachment_url( $attachment_id );
+				$new_url = preg_replace( '/\.(jpe?g|png|gif)$/i', '.webp', $old_url );
+				
+				// Replace original file with WebP and update attachment metadata
+				unlink( $file_path );
+				update_attached_file( $attachment_id, $webp_path );
+				
+				global $wpdb;
+				$wpdb->update(
+					$wpdb->posts,
+					array( 
+						'post_mime_type' => 'image/webp',
+						'guid' => $new_url
+					),
+					array( 'ID' => $attachment_id )
+				);
+				
 				require_once( ABSPATH . 'wp-admin/includes/image.php' );
-				$attach_data = wp_generate_attachment_metadata( $attach_id, $webp_path );
-				wp_update_attachment_metadata( $attach_id, $attach_data );
+				$attach_data = wp_generate_attachment_metadata( $attachment_id, $webp_path );
+				wp_update_attachment_metadata( $attachment_id, $attach_data );
+				
+				// Update post content references
+				$wpdb->query( $wpdb->prepare(
+					"UPDATE {$wpdb->posts} SET post_content = REPLACE(post_content, %s, %s)",
+					$old_url, $new_url
+				) );
+			} else {
+				// Create new attachment for WebP
+				$attachment = array(
+					'post_mime_type' => 'image/webp',
+					'post_title'     => basename( $webp_path, '.webp' ),
+					'post_content'   => '',
+					'post_status'    => 'inherit',
+				);
+
+				$attach_id = wp_insert_attachment( $attachment, $webp_path );
+				
+				if ( ! is_wp_error( $attach_id ) ) {
+					require_once( ABSPATH . 'wp-admin/includes/image.php' );
+					$attach_data = wp_generate_attachment_metadata( $attach_id, $webp_path );
+					wp_update_attachment_metadata( $attach_id, $attach_data );
+				}
 			}
 		}
 
