@@ -7,6 +7,7 @@ import Settings from './components/Settings';
 declare const webpOptData: {
     ajaxUrl: string;
     nonce: string;
+
 };
 
 const AdminMenu = () => {

@@ -25,6 +25,8 @@ class Admin_Settings_Ajax {
 			'auto_convert'       => false,
 			'keep_original'      => true,
 			'batch_size'         => 10,
+			'cdn_enabled'        => false,
+			'cdn_url'            => '',
 			'supported_formats'  => array(
 				'jpeg' => true,
 				'png'  => true,
@@ -64,6 +66,8 @@ class Admin_Settings_Ajax {
 			'auto_convert'      => (bool) $settings['auto_convert'],
 			'keep_original'     => (bool) $settings['keep_original'],
 			'batch_size'        => intval( $settings['batch_size'] ),
+			'cdn_enabled'       => (bool) $settings['cdn_enabled'],
+			'cdn_url'           => esc_url_raw( $settings['cdn_url'] ),
 			'supported_formats' => array(
 				'jpeg' => (bool) $settings['supported_formats']['jpeg'],
 				'png'  => (bool) $settings['supported_formats']['png'],
