@@ -1,26 +1,13 @@
-# Node modules
 node_modules/
-
-# Build files
 build/
-
-# Logs
 *.log
 npm-debug.log*
-
-# OS files
 .DS_Store
 Thumbs.db
-
-# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# Package lock (optional - remove if you want to commit it)
 package-lock.json
-
-# Temporary files
 *.tmp
 *.temp

@@ -1,114 +1,93 @@
-=== Plugin Name ===
-Contributors: (this should be a list of wordpress.org userid's)
-Donate link: https://test/
-Tags: comments, spam
-Requires at least: 3.0.1
-Tested up to: 3.4
-Stable tag: 4.3
+=== WebP Converter & Optimizer ===
+Contributors: shaktisinhj
+Tags: webp, image optimization, image converter, performance, compression
+Requires at least: 5.0
+Tested up to: 6.9
+Stable tag: 1.0.0
+Requires PHP: 8.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Here is a short description of the plugin.  This should be no more than 150 characters.  No markup here.
+Automatically convert and optimize images to WebP format, reducing file sizes and improving page load speeds.
 
 == Description ==
 
-This is the long description.  No limit, and you can use Markdown (as well as in the following sections).
+WebP Converter & Optimizer is a powerful WordPress plugin that helps you convert your images to the modern WebP format, significantly reducing file sizes while maintaining quality. This leads to faster page load times and better SEO performance.
 
-For backwards compatibility, if this section is missing, the full length of the short description will be used, and
-Markdown parsed.
+= Features =
 
-A few notes about the sections above:
+* **Image Converter** - Upload and convert individual images to WebP with preview and crop functionality
+* **Bulk Converter** - Convert your entire media library to WebP with batch processing
+* **Auto-Convert** - Automatically convert images to WebP on upload
+* **Image Cropping** - Built-in image cropper with zoom and pan controls
+* **Quality Control** - Adjustable quality settings (1-100)
+* **Format Support** - Supports JPEG, PNG, and GIF formats
+* **Batch Processing** - Configurable batch sizes to prevent timeouts
+* **Original Management** - Choose to keep or delete original images
 
-*   "Contributors" is a comma separated list of wp.org/wp-plugins.org usernames
-*   "Tags" is a comma separated list of tags that apply to the plugin
-*   "Requires at least" is the lowest version that the plugin will work on
-*   "Tested up to" is the highest version that you've *successfully used to test the plugin*. Note that it might work on
-higher versions... this is just the highest one you've verified.
-*   Stable tag should indicate the Subversion "tag" of the latest stable version, or "trunk," if you use `/trunk/` for
-stable.
+= Benefits =
 
-    Note that the `readme.txt` of the stable tag is the one that is considered the defining one for the plugin, so
-if the `/trunk/readme.txt` file says that the stable tag is `4.3`, then it is `/tags/4.3/readme.txt` that'll be used
-for displaying information about the plugin.  In this situation, the only thing considered from the trunk `readme.txt`
-is the stable tag pointer.  Thus, if you develop in trunk, you can update the trunk `readme.txt` to reflect changes in
-your in-development version, without having that information incorrectly disclosed about the current stable version
-that lacks those changes -- as long as the trunk's `readme.txt` points to the correct stable tag.
+* Reduce image file sizes by up to 80%
+* Improve page load speeds
+* Better SEO rankings
+* Lower bandwidth usage
+* Modern image format support
 
-    If no stable tag is provided, it is assumed that trunk is stable, but you should specify "trunk" if that's where
-you put the stable version, in order to eliminate any doubt.
+= Requirements =
+
+* WordPress 5.0 or higher
+* PHP 8.0 or higher
+* GD library with WebP support
+* Modern browser with JavaScript enabled
 
 == Installation ==
 
-This section describes how to install the plugin and get it working.
-
-e.g.
-
-1. Upload `webp-converter-optimizer.php` to the `/wp-content/plugins/` directory
-1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Place `<?php do_action('plugin_name_hook'); ?>` in your templates
+1. Upload the plugin files to `/wp-content/plugins/webp-converter-optimizer/` directory, or install the plugin through the WordPress plugins screen directly
+2. Activate the plugin through the 'Plugins' screen in WordPress
+3. Navigate to 'WebP Optimizer' in the admin menu to configure settings
+4. Start converting your images!
 
 == Frequently Asked Questions ==
 
-= A question that someone might have =
+= Does this plugin work with all image formats? =
 
-An answer to that question.
+The plugin supports JPEG, PNG, and GIF formats. You can enable or disable specific formats in the settings.
 
-= What about foo bar? =
+= Will this plugin delete my original images? =
 
-Answer to foo bar dilemma.
+You have full control. In the settings, you can choose to keep or delete original images after conversion.
+
+= Can I convert existing images in my media library? =
+
+Yes! Use the Bulk Converter feature to convert all existing images in your media library.
+
+= Does auto-convert work for new uploads? =
+
+Yes, when enabled in settings, all new image uploads will be automatically converted to WebP.
+
+= What happens to images used in posts and pages? =
+
+When you delete original images, the plugin automatically updates all references in your posts and pages to point to the new WebP files.
 
 == Screenshots ==
 
-1. This screen shot description corresponds to screenshot-1.(png|jpg|jpeg|gif). Note that the screenshot is taken from
-the /assets directory or the directory that contains the stable readme.txt (tags or trunk). Screenshots in the /assets
-directory take precedence. For example, `/assets/screenshot-1.png` would win over `/tags/4.3/screenshot-1.png`
-(or jpg, jpeg, gif).
-2. This is the second screen shot
+1. Image Converter interface with drag-and-drop support
+2. Bulk Converter with progress tracking
+3. Settings page with quality and format options
+4. Image cropping interface
 
 == Changelog ==
 
-= 1.0 =
-* A change since the previous version.
-* Another change.
-
-= 0.5 =
-* List versions from most recent at top to oldest at bottom.
+= 1.0.0 =
+* Initial release
+* Image converter with crop functionality
+* Bulk converter with batch processing
+* Settings management
+* Auto-convert on upload
+* Multiple file support
+* Automatic URL updates for converted images
 
 == Upgrade Notice ==
 
-= 1.0 =
-Upgrade notices describe the reason a user should upgrade.  No more than 300 characters.
-
-= 0.5 =
-This version fixes a security related bug.  Upgrade immediately.
-
-== Arbitrary section ==
-
-You may provide arbitrary sections, in the same format as the ones above.  This may be of use for extremely complicated
-plugins where more information needs to be conveyed that doesn't fit into the categories of "description" or
-"installation."  Arbitrary sections will be shown below the built-in sections outlined above.
-
-== A brief Markdown Example ==
-
-Ordered list:
-
-1. Some feature
-1. Another feature
-1. Something else about the plugin
-
-Unordered list:
-
-* something
-* something else
-* third thing
-
-Here's a link to [WordPress](http://wordpress.org/ "Your favorite software") and one to [Markdown's Syntax Documentation][markdown syntax].
-Titles are optional, naturally.
-
-[markdown syntax]: http://daringfireball.net/projects/markdown/syntax
-            "Markdown is what the parser uses to process much of the readme file"
-
-Markdown uses email style notation for blockquotes and I've been told:
-> Asterisks for *emphasis*. Double it up  for **strong**.
-
-`<?php code(); // goes in backticks ?>`
+= 1.0.0 =
+Initial release of WebP Converter & Optimizer.

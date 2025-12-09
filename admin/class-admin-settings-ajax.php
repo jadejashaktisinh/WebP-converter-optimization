@@ -1,17 +1,38 @@
 <?php
 
+/**
+ * Settings AJAX Handler
+ *
+ * @package    Webp_Converter_Optimizer
+ * @subpackage Webp_Converter_Optimizer/admin
+ */
 class Admin_Settings_Ajax {
 
+	/**
+	 * Settings option name.
+	 *
+	 * @since 1.0.0
+	 */
 	const OPTION_NAME = 'webp_optimizer_settings';
 
+	/**
+	 * Initialize the class and set up hooks.
+	 *
+	 * @since 1.0.0
+	 */
 	public function __construct() {
 		add_action( 'wp_ajax_get_webp_settings', array( $this, 'get_settings' ) );
 		add_action( 'wp_ajax_save_webp_settings', array( $this, 'save_settings' ) );
 	}
 
+	/**
+	 * Get plugin settings via AJAX.
+	 *
+	 * @since 1.0.0
+	 */
 	public function get_settings() {
 		// Verify nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'webp_opt_nonce' ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'webp_opt_nonce' ) ) {
 			wp_send_json_error( array( 'message' => 'Invalid security token' ), 403 );
 		}
 
@@ -39,9 +60,14 @@ class Admin_Settings_Ajax {
 		wp_send_json_success( $settings );
 	}
 
+	/**
+	 * Save plugin settings via AJAX.
+	 *
+	 * @since 1.0.0
+	 */
 	public function save_settings() {
 		// Verify nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'webp_opt_nonce' ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'webp_opt_nonce' ) ) {
 			wp_send_json_error( array( 'message' => 'Invalid security token' ), 403 );
 		}
 
@@ -54,7 +80,8 @@ class Admin_Settings_Ajax {
 			wp_send_json_error( array( 'message' => 'No settings provided' ) );
 		}
 
-		$settings = json_decode( stripslashes( $_POST['settings'] ), true );
+		$settings_raw = sanitize_text_field( wp_unslash( $_POST['settings'] ) );
+		$settings = json_decode( stripslashes( $settings_raw ), true );
 
 		if ( json_last_error() !== JSON_ERROR_NONE ) {
 			wp_send_json_error( array( 'message' => 'Invalid settings format' ) );
