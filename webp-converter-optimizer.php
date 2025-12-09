@@ -59,7 +59,7 @@ if ( ! defined( 'WEBPOPT_BUILD_PATH' ) ) {
  * The code that runs during plugin activation.
  * This action is documented in includes/class-webp-converter-optimizer-activator.php
  */
-function activate_webp_converter_optimizer() {
+function webp_converter_optimizer_activate() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-webp-converter-optimizer-activator.php';
 	Webp_Converter_Optimizer_Activator::activate();
 }
@@ -68,13 +68,13 @@ function activate_webp_converter_optimizer() {
  * The code that runs during plugin deactivation.
  * This action is documented in includes/class-webp-converter-optimizer-deactivator.php
  */
-function deactivate_webp_converter_optimizer() {
+function webp_converter_optimizer_deactivate() {
 	require_once plugin_dir_path( __FILE__ ) . 'includes/class-webp-converter-optimizer-deactivator.php';
 	Webp_Converter_Optimizer_Deactivator::deactivate();
 }
 
-register_activation_hook( __FILE__, 'activate_webp_converter_optimizer' );
-register_deactivation_hook( __FILE__, 'deactivate_webp_converter_optimizer' );
+register_activation_hook( __FILE__, 'webp_converter_optimizer_activate' );
+register_deactivation_hook( __FILE__, 'webp_converter_optimizer_deactivate' );
 
 /**
  * The core plugin class that is used to define internationalization,
@@ -91,10 +91,10 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-webp-converter-optimizer.p
  *
  * @since    1.0.0
  */
-function run_webp_converter_optimizer() {
+function webp_converter_optimizer_run() {
 
 	$plugin = new Webp_Converter_Optimizer();
 	$plugin->run();
 
 }
-run_webp_converter_optimizer();
+webp_converter_optimizer_run();

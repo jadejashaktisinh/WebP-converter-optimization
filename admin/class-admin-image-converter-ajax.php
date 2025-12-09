@@ -1,15 +1,31 @@
 <?php
 
+/**
+ * Image Converter AJAX Handler
+ *
+ * @package    Webp_Converter_Optimizer
+ * @subpackage Webp_Converter_Optimizer/admin
+ */
 class Admin_Image_Converter_Ajax {
 
+	/**
+	 * Initialize the class and set up hooks.
+	 *
+	 * @since 1.0.0
+	 */
 	public function __construct() {
 		add_action( 'wp_ajax_convert_images', array( $this, 'handle_convert_images' ) );
 		add_action( 'add_attachment', array( $this, 'auto_convert_on_upload' ) );
 	}
 
+	/**
+	 * Handle image conversion AJAX request.
+	 *
+	 * @since 1.0.0
+	 */
 	public function handle_convert_images() {
 		// Verify nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'webp_opt_nonce' ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'webp_opt_nonce' ) ) {
 			wp_send_json_error( array( 'message' => 'Invalid security token' ), 403 );
 		}
 
@@ -19,7 +35,7 @@ class Admin_Image_Converter_Ajax {
 		}
 
 		// Check if files were uploaded
-		if ( empty( $_FILES['images'] ) ) {
+		if ( empty( $_FILES['images'] ) || ! isset( $_FILES['images'] ) ) {
 			wp_send_json_error( array( 'message' => 'No images uploaded' ) );
 		}
 
@@ -30,7 +46,8 @@ class Admin_Image_Converter_Ajax {
 		$settings = get_option( 'webp_optimizer_settings', array( 'default_quality' => 80 ) );
 		$quality = $settings['default_quality'];
 
-		$files = $_FILES['images'];
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- File upload array, validated below
+		$files = isset( $_FILES['images'] ) ? wp_unslash( $_FILES['images'] ) : array();
 		$converted = array();
 		$errors = array();
 
@@ -65,6 +82,12 @@ class Admin_Image_Converter_Ajax {
 		) );
 	}
 
+	/**
+	 * Auto-convert images to WebP on upload.
+	 *
+	 * @since 1.0.0
+	 * @param int $attachment_id Attachment ID.
+	 */
 	public function auto_convert_on_upload( $attachment_id ) {
 		$settings = get_option( 'webp_optimizer_settings', array() );
 
@@ -104,6 +127,14 @@ class Admin_Image_Converter_Ajax {
 		}
 	}
 
+	/**
+	 * Convert uploaded file and save to media library.
+	 *
+	 * @since 1.0.0
+	 * @param array $file Uploaded file array.
+	 * @param int   $quality WebP quality (1-100).
+	 * @return array|WP_Error Array with id and url on success, WP_Error on failure.
+	 */
 	private function convert_and_save( $file, $quality ) {
 		// Create image resource from uploaded file
 		$image_type = exif_imagetype( $file['tmp_name'] );
@@ -164,6 +195,16 @@ class Admin_Image_Converter_Ajax {
 		);
 	}
 
+	/**
+	 * Convert an image to WebP format.
+	 *
+	 * @since 1.0.0
+	 * @param string $file_path Path to the original image file.
+	 * @param int    $quality WebP quality (1-100).
+	 * @param int    $original_id Optional. Original attachment ID.
+	 * @param bool   $replace_original Optional. Whether to replace the original.
+	 * @return int|bool Attachment ID on success, false on failure.
+	 */
 	private function convert_to_webp( $file_path, $quality, $original_id = 0, $replace_original = false ) {
 		$image_type = exif_imagetype( $file_path );
 

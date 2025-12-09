@@ -1,14 +1,30 @@
 <?php
 
+/**
+ * Bulk Converter AJAX Handler
+ *
+ * @package    Webp_Converter_Optimizer
+ * @subpackage Webp_Converter_Optimizer/admin
+ */
 class Admin_Bulk_Converter_Ajax {
 
+	/**
+	 * Initialize the class and set up hooks.
+	 *
+	 * @since 1.0.0
+	 */
 	public function __construct() {
 		add_action( 'wp_ajax_bulk_convert_images', array( $this, 'handle_bulk_convert' ) );
 	}
 
+	/**
+	 * Handle bulk image conversion AJAX request.
+	 *
+	 * @since 1.0.0
+	 */
 	public function handle_bulk_convert() {
 		// Verify nonce
-		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( $_POST['nonce'], 'webp_opt_nonce' ) ) {
+		if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'webp_opt_nonce' ) ) {
 			wp_send_json_error( array( 'message' => 'Invalid security token' ), 403 );
 		}
 
@@ -78,6 +94,16 @@ class Admin_Bulk_Converter_Ajax {
 		) );
 	}
 
+	/**
+	 * Convert an image to WebP format.
+	 *
+	 * @since 1.0.0
+	 * @param string $file_path Path to the original image file.
+	 * @param int    $quality WebP quality (1-100).
+	 * @param int    $attachment_id Optional. Attachment ID if replacing original.
+	 * @param bool   $delete_original Optional. Whether to delete the original file.
+	 * @return bool True on success, false on failure.
+	 */
 	private function convert_to_webp( $file_path, $quality, $attachment_id = null, $delete_original = false ) {
 		$image_type = exif_imagetype( $file_path );
 
@@ -111,28 +137,21 @@ class Admin_Bulk_Converter_Ajax {
 				$new_url = preg_replace( '/\.(jpe?g|png|gif)$/i', '.webp', $old_url );
 				
 				// Replace original file with WebP and update attachment metadata
-				unlink( $file_path );
+				wp_delete_file( $file_path );
 				update_attached_file( $attachment_id, $webp_path );
 				
-				global $wpdb;
-				$wpdb->update(
-					$wpdb->posts,
-					array( 
-						'post_mime_type' => 'image/webp',
-						'guid' => $new_url
-					),
-					array( 'ID' => $attachment_id )
-				);
+				wp_update_post( array(
+					'ID' => $attachment_id,
+					'post_mime_type' => 'image/webp',
+					'guid' => $new_url
+				) );
 				
 				require_once( ABSPATH . 'wp-admin/includes/image.php' );
 				$attach_data = wp_generate_attachment_metadata( $attachment_id, $webp_path );
 				wp_update_attachment_metadata( $attachment_id, $attach_data );
 				
 				// Update post content references
-				$wpdb->query( $wpdb->prepare(
-					"UPDATE {$wpdb->posts} SET post_content = REPLACE(post_content, %s, %s)",
-					$old_url, $new_url
-				) );
+				$this->update_image_references( $old_url, $new_url );
 			} else {
 				// Create new attachment for WebP
 				$attachment = array(
@@ -153,6 +172,32 @@ class Admin_Bulk_Converter_Ajax {
 		}
 
 		return $success;
+	}
+
+	/**
+	 * Update image URL references in post content.
+	 *
+	 * @since 1.0.0
+	 * @param string $old_url Old image URL to replace.
+	 * @param string $new_url New image URL.
+	 */
+	private function update_image_references( $old_url, $new_url ) {
+		$posts = get_posts( array(
+			'post_type' => 'any',
+			'posts_per_page' => -1,
+			's' => basename( $old_url ),
+			'fields' => 'ids'
+		) );
+
+		foreach ( $posts as $post_id ) {
+			$post = get_post( $post_id );
+			if ( strpos( $post->post_content, $old_url ) !== false ) {
+				wp_update_post( array(
+					'ID' => $post_id,
+					'post_content' => str_replace( $old_url, $new_url, $post->post_content )
+				) );
+			}
+		}
 	}
 
 }
